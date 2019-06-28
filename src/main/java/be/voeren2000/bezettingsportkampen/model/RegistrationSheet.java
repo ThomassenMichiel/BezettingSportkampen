@@ -1,15 +1,14 @@
 package be.voeren2000.bezettingsportkampen.model;
 
-import java.time.LocalDate;
 import java.util.*;
 
-import javafx.util.Pair;
 import org.apache.poi.ss.usermodel.*;
 
 public class RegistrationSheet {
     public static final int MAX_USERS = 25;
     private Workbook workbook;
     private List<OneDayTotal> entriesPerDay;
+    private List<List<OneDayTotal>> splitEntries;
     
     public RegistrationSheet(Workbook workbook) {
         this.workbook = workbook;
@@ -30,5 +29,13 @@ public class RegistrationSheet {
     
     public void setEntriesPerDay(List<OneDayTotal> entriesPerDay) {
         this.entriesPerDay = entriesPerDay;
+    }
+    
+    public List<List<OneDayTotal>> getSplitEntries() {
+        return splitEntries;
+    }
+    
+    public void setSplitEntries(List<List<OneDayTotal>> splitEntries) {
+        this.splitEntries = splitEntries;
     }
 }

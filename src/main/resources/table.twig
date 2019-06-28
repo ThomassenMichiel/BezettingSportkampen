@@ -1,18 +1,16 @@
 <table>
     <tbody>
-        {% for subList in splitTotals -%}
-        <tr>
-            {% for oneDayTotal in subList -%}
-            <th>
-                {{oneDayTotal.localDate}}
-            </th>
-            {% endfor -%}
-            {% for oneDayTotal in subList -%}
-            <td>
-                {{oneDayTotal.amount}}
-            </td>
-            {% endfor -%}
+    {% for subList in splitTotals %}
+        <tr>{% for oneDayTotal in subList %}
+            <th>{{ oneDayTotal.localDate }}</th>{% endfor %}
         </tr>
-        {% endfor -%}
+        <tr>{% for oneDayTotal in subList %}
+            <td>{% if (oneDayTotal.amount >= 25) %}
+                {{- "VOLZET" -}}
+            {% else %}
+                {{- oneDayTotal.amount }}/{{ maxAllowed -}}
+            {% endif %}</td>
+        {% endfor %}</tr>
+    {% endfor %}
     </tbody>
 </table>
