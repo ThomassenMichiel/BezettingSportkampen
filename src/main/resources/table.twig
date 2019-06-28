@@ -1,0 +1,18 @@
+<table>
+    <tbody>
+        {% for subList in splitTotals -%}
+        <tr>
+            {% for oneDayTotal in subList -%}
+            <th>
+                {{oneDayTotal.localDate}}
+            </th>
+            {% endfor -%}
+            {% for oneDayTotal in subList -%}
+            <td>
+                {{oneDayTotal.amount}}
+            </td>
+            {% endfor -%}
+        </tr>
+        {% endfor -%}
+    </tbody>
+</table>
