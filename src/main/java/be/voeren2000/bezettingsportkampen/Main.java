@@ -1,6 +1,7 @@
 package be.voeren2000.bezettingsportkampen;
 
 import be.voeren2000.bezettingsportkampen.model.RegistrationSheet;
+import be.voeren2000.bezettingsportkampen.service.HtmlTable;
 import be.voeren2000.bezettingsportkampen.service.ReadExcelFile;
 import com.afrozaar.wordpress.wpapi.v2.Wordpress;
 import com.afrozaar.wordpress.wpapi.v2.config.ClientConfig;
@@ -13,10 +14,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jtwig.JtwigModel;
-import org.jtwig.JtwigTemplate;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -28,14 +26,14 @@ public class Main {
             
             ReadExcelFile file = new ReadExcelFile();
             file.readFile(registrationSheet);
-            
-            JtwigTemplate template = JtwigTemplate.classpathTemplate("table.twig");
+            new HtmlTable().createTable(registrationSheet.getSplitEntries());
+            /*JtwigTemplate template = JtwigTemplate.classpathTemplate("table.twig");
             JtwigModel model = JtwigModel.newModel()
                     .with("splitTotals", registrationSheet.getSplitEntries())
                     .with("maxAllowed", RegistrationSheet.MAX_USERS);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             template.render(model, baos);
-            Page page = getPage(baos.toString());
+            Page page = getPage(baos.toString());*/
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -55,7 +53,7 @@ public class Main {
             Element table = doc.getElementById("omnisport");
             table.remove();
             
-            doc.select("body").first().insertChildren(0)
+//            doc.select("body").first().insertChildren(0,);
             
             return page;
         } catch (PageNotFoundException e) {
