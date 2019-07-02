@@ -4,28 +4,15 @@ import be.voeren2000.bezettingsportkampen.model.OneDayTotal;
 import be.voeren2000.bezettingsportkampen.model.RegistrationSheet;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
-import org.jtwig.JtwigModel;
-import org.jtwig.JtwigTemplate;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ReadExcelFile {
     public void readFile(RegistrationSheet registrationSheet) {
         getDataFromSheet(registrationSheet);
-        
-        List<List<OneDayTotal>> splitTotals = new ArrayList<>();
-        int size = registrationSheet.getEntriesPerDay().size();
-        for (int i = 0; i < size; i += 5) {
-            splitTotals.add(registrationSheet.getEntriesPerDay().subList(i, Math.min(i + 5, size)));
-        }
-        
-        registrationSheet.setSplitEntries(splitTotals);
-        
     }
     
     private void getDataFromSheet(RegistrationSheet registrationSheet) {

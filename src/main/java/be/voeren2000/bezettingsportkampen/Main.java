@@ -3,6 +3,7 @@ package be.voeren2000.bezettingsportkampen;
 import be.voeren2000.bezettingsportkampen.model.RegistrationSheet;
 import be.voeren2000.bezettingsportkampen.service.HtmlTable;
 import be.voeren2000.bezettingsportkampen.service.ReadExcelFile;
+import be.voeren2000.bezettingsportkampen.util.PropertiesLoader;
 import com.afrozaar.wordpress.wpapi.v2.Wordpress;
 import com.afrozaar.wordpress.wpapi.v2.config.ClientConfig;
 import com.afrozaar.wordpress.wpapi.v2.config.ClientFactory;
@@ -14,51 +15,74 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.File;
 import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        try {
-            Workbook workbook = WorkbookFactory.create(new File("Lijst inschr. sportkamp ZOMER 2019.xlsx"));
-            RegistrationSheet registrationSheet = new RegistrationSheet(workbook);
-            
-            ReadExcelFile file = new ReadExcelFile();
-            file.readFile(registrationSheet);
-            new HtmlTable().createTable(registrationSheet.getSplitEntries());
-            /*JtwigTemplate template = JtwigTemplate.classpathTemplate("table.twig");
-            JtwigModel model = JtwigModel.newModel()
-                    .with("splitTotals", registrationSheet.getSplitEntries())
-                    .with("maxAllowed", RegistrationSheet.MAX_USERS);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            template.render(model, baos);
-            Page page = getPage(baos.toString());*/
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        /*args = new String[2];
+        args[0] = "Lijst inschr. sportkamp ZOMER 2019.xlsx";
+        args[1] = "Lijst inschr. kleuters ZOMER 2019.xlsx";*/
+    
+        PropertiesLoader propertiesLoader = new PropertiesLoader();
+        
+            Element divContainer = new Element("div");
+            divContainer.attr("id", propertiesLoader.getString("html_container_id"));
+            for (int i = 0; i < args.length; i++) {
+                try (Workbook workbook = WorkbookFactory.create(new File(args[i]))) {
+                    RegistrationSheet registrationSheet = new RegistrationSheet(workbook);
+                    ReadExcelFile file = new ReadExcelFile();
+                    file.readFile(registrationSheet);
+                    HtmlTable htmlTable = new HtmlTable();
+                    String headerName = args[i].split(" ")[2];
+                    headerName = headerName.substring(0,1).toUpperCase() + headerName.substring(1).toLowerCase();
+                    divContainer.appendChild(htmlTable.createH1Header(headerName));
+                    divContainer.appendChild(htmlTable.processRegistrations(registrationSheet));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            getPage(divContainer);
     }
     
-    private static Page getPage(String s) {
-        String baseUrl = null;
-        String username = null;
-        String password = null;
-        boolean debug = false;
+    private static Page getPage(Element divContainer) {
+        PropertiesLoader propertiesLoader = new PropertiesLoader();
+        String baseUrl = propertiesLoader.getString("url");
+        String username = propertiesLoader.getString("user");
+        String password = propertiesLoader.getString("password");
+        boolean debug = Boolean.parseBoolean(propertiesLoader.getString("debug"));
+        boolean usePermalinkEndpoint = Boolean.parseBoolean(propertiesLoader.getString("usePermalinkEndpoint"));
     
-        Wordpress wordpress = ClientFactory.fromConfig(ClientConfig.of(baseUrl, username, password, false, debug));
+        Wordpress wordpress = ClientFactory.fromConfig(ClientConfig.of(baseUrl, username, password, usePermalinkEndpoint, debug));
+        
         try {
             Page page = wordpress.getPage(350l);
             Content content = page.getContent();
             Document doc = Jsoup.parse(content.getRendered());
-            Element table = doc.getElementById("omnisport");
-            table.remove();
             
-//            doc.select("body").first().insertChildren(0,);
+            removeOldData(doc);
+            insertNewData(doc, divContainer);
             
+            content.setRendered(doc.body().toString());
+            page.setContent(content);
+            wordpress.updatePage(page);
             return page;
         } catch (PageNotFoundException e) {
             e.printStackTrace();
+        } catch (HttpClientErrorException hcee) {
+            hcee.printStackTrace();
         }
         return null;
+    }
+    
+    private static void removeOldData(Document doc) {
+        doc.getElementById("omnisport").remove();
+        doc.getElementById("kleuterkamp").remove();
+    }
+    
+    private static void insertNewData(Document doc, Element divContainer) {
+        doc.body().insertChildren(0,divContainer);
     }
 }
