@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-public class ReadExcelFile {
+public class ExcelFileService {
     public void readFile(RegistrationSheet registrationSheet) {
         getDataFromSheet(registrationSheet);
     }

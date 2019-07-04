@@ -5,7 +5,6 @@ import java.util.*;
 import org.apache.poi.ss.usermodel.*;
 
 public class RegistrationSheet {
-    public static final int MAX_USERS = 25;
     private Workbook workbook;
     private List<OneDayTotal> entriesPerDay;
     

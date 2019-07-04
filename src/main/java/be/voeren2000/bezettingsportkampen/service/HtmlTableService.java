@@ -8,10 +8,10 @@ import org.jsoup.nodes.Element;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class HtmlTable {
+public class HtmlTableService {
     private PropertiesLoader propertiesLoader;
     
-    public HtmlTable() {
+    public HtmlTableService() {
         propertiesLoader = new PropertiesLoader();
     }
     
